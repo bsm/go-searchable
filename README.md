@@ -36,8 +36,5 @@ func main() {
   // => SELECT * FROM users WHERE (((users.name IS NOT NULL AND users.name LIKE ?) OR (users.code IS NOT NULL AND users.code = ?)) AND ((users.name IS NOT NULL AND users.name LIKE ?) OR ...
   fmt.Println(args)
   // => [%alice% alice %45% 45 45 %admin% admin]
-
-  // for a simple search of strings without requirement to negate terms, use SearchStrings()
-  search_string := builder.SearchStrings([]string{"alice", "45", "admin"})
 }
 ```

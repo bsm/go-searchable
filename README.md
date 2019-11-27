@@ -24,7 +24,11 @@ var builder = searchable.Builder{
 }
 
 func main() {
-  search := builder.Search([]string{"alice", "45", "-admin"})
+  search := builder.Search([]searchable.Token{
+    {Term: "alice"},
+    {Term: "45"},
+    {Term: "admin", Negate: true},
+  })
   users := squirrel.Select("*").From("users").Where(search)
   sql, args, _ := users.ToSql()
 

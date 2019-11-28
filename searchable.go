@@ -48,7 +48,7 @@ func (b Builder) Search(tokens []Token) squirrel.Sqlizer {
 	return conj
 }
 
-// SearchStrings converts a list of string search tokens into a WHERE clause without excluding terms preceded by "-".
+// SearchStrings converts a list of strings into a WHERE clause.
 func (b Builder) SearchStrings(terms []string) squirrel.Sqlizer {
 	// convert strings to []Token with Negate: false then just pass in to search overall method
 	tokens := make([]Token, 0, len(terms))

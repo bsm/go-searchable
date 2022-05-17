@@ -3,22 +3,25 @@ package searchable_test
 import (
 	"fmt"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/bsm/go-searchable"
 )
 
-func ExampleBuilder_SearchStrings() {
-	builder := searchable.Builder{
-		{SQL: "users.name"},
-		{SQL: "users.code", Exact: true},
+func ExampleBuilder_Search() {
+	builder := &searchable.Builder{
+		Fields: []searchable.Field{
+			{SQL: "users.name"},
+			{SQL: "users.code", Match: searchable.MatchExact},
+		},
+		Placeholder: searchable.Dollar,
 	}
-	search := builder.SearchStrings([]string{"alice"})
-	users := squirrel.Select("*").From("users").Where(search)
-	sql, args, _ := users.ToSql()
+
+	tokens := searchable.Parse("alice")
+	search := builder.Search(tokens)
+	sql, args, _ := search.ToSql()
 	fmt.Printf("%v\n", sql)
 	fmt.Printf("%v\n", args)
 
 	// Output:
-	// SELECT * FROM users WHERE (((users.name IS NOT NULL AND users.name LIKE ?) OR (users.code IS NOT NULL AND users.code = ?)))
+	// ((users.name IS NOT NULL AND users.name ILIKE $1) OR (users.code IS NOT NULL AND users.code = $2))
 	// [%alice% alice]
 }

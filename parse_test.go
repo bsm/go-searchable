@@ -1,83 +1,131 @@
 package searchable_test
 
 import (
-	"github.com/bsm/go-searchable"
-	. "github.com/onsi/ginkgo/extensions/table"
-	. "github.com/onsi/gomega"
+	"reflect"
+	"testing"
+
+	. "github.com/bsm/go-searchable"
 )
 
-var _ = DescribeTable("ParseTokens",
-	func(s string, x []searchable.Token) {
-		Expect(searchable.ParseTokens(s)).To(Equal(x))
-	},
-	Entry("empty", "", []searchable.Token{}),
-	Entry("blank doubles", `""`, []searchable.Token{}),
-	Entry("-+", `-+`, []searchable.Token{
-		{Term: "+", Negate: true},
-	}),
-	Entry("simple words", "simple words", []searchable.Token{
-		{Term: "simple"},
-		{Term: "words"},
-	}),
-	Entry("with spaces", " with   \t spaces\n", []searchable.Token{
-		{Term: "with"},
-		{Term: "spaces"},
-	}),
-	Entry("with duplicates", "with with duplicates with", []searchable.Token{
-		{Term: "with"},
-		{Term: "duplicates"},
-	}),
-	Entry("with full term", `with "full term"`, []searchable.Token{
-		{Term: "with"},
-		{Term: "full term"},
-	}),
-	Entry("odd double quotes", `"""odd double quotes around"""`, []searchable.Token{
-		{Term: "odd double quotes around"},
-	}),
-	Entry("even double quotes", `""even double quotes around""`, []searchable.Token{
-		{Term: "even double quotes around"},
-	}),
-	Entry("with apostrophe", `with'apostrophe`, []searchable.Token{
-		{Term: "with'apostrophe"},
-	}),
-	Entry("with -minus", `with -minus`, []searchable.Token{
-		{Term: "with"},
-		{Term: "minus", Negate: true},
-	}),
-	Entry("with +plus", `with +plus`, []searchable.Token{
-		{Term: "with"},
-		{Term: "plus"},
-	}),
-	Entry("with-minus", `with-minus`, []searchable.Token{
-		{Term: "with-minus"},
-	}),
-	Entry("with+plus", `with+plus`, []searchable.Token{
-		{Term: "with+plus"},
-	}),
-	Entry("with minus before", `with -"minus before"`, []searchable.Token{
-		{Term: "with"},
-		{Term: "minus before", Negate: true},
-	}),
-	Entry("with minus within", `with "-minus within"`, []searchable.Token{
-		{Term: "with"},
-		{Term: "-minus within"},
-	}),
-	Entry("with plus before", `with +"plus before"`, []searchable.Token{
-		{Term: "with"},
-		{Term: "plus before"},
-	}),
-	Entry("with plus within", `with "+plus within"`, []searchable.Token{
-		{Term: "with"},
-		{Term: "+plus within"},
-	}),
-	Entry("+plus in other term", `+plus "in other term"`, []searchable.Token{
-		{Term: "plus"},
-		{Term: "in other term"},
-	}),
-	Entry("with blank", `with ''`, []searchable.Token{
-		{Term: "with"},
-	}),
-	Entry("with blank doubles", `with ""`, []searchable.Token{
-		{Term: "with"},
-	}),
-)
+func testParse(t *testing.T, s string, exp []Token) {
+	t.Helper()
+
+	if got := Parse(s); !reflect.DeepEqual(exp, got) {
+		t.Errorf("expected %v, but got %v", exp, got)
+	}
+}
+
+func TestParse(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		testParse(t, "", []Token{})
+	})
+	t.Run("blank doubles", func(t *testing.T) {
+		testParse(t, `""`, []Token{})
+	})
+	t.Run("-+", func(t *testing.T) {
+		testParse(t, `-+`, []Token{
+			{Term: "+", Negate: true},
+		})
+	})
+	t.Run("simple words", func(t *testing.T) {
+		testParse(t, "simple words", []Token{
+			{Term: "simple"},
+			{Term: "words"},
+		})
+	})
+	t.Run("with spaces", func(t *testing.T) {
+		testParse(t, " with   \t spaces\n", []Token{
+			{Term: "with"},
+			{Term: "spaces"},
+		})
+	})
+	t.Run("with duplicates", func(t *testing.T) {
+		testParse(t, "with with duplicates with", []Token{
+			{Term: "with"},
+			{Term: "duplicates"},
+		})
+	})
+	t.Run("with full term", func(t *testing.T) {
+		testParse(t, `with "full term"`, []Token{
+			{Term: "with"},
+			{Term: "full term"},
+		})
+	})
+	t.Run("odd double quotes", func(t *testing.T) {
+		testParse(t, `"""odd double quotes around"""`, []Token{
+			{Term: "odd double quotes around"},
+		})
+	})
+	t.Run("even double quotes", func(t *testing.T) {
+		testParse(t, `""even double quotes around""`, []Token{
+			{Term: "even double quotes around"},
+		})
+	})
+	t.Run("with apostrophe", func(t *testing.T) {
+		testParse(t, `with'apostrophe`, []Token{
+			{Term: "with'apostrophe"},
+		})
+	})
+	t.Run("with -minus", func(t *testing.T) {
+		testParse(t, `with -minus`, []Token{
+			{Term: "with"},
+			{Term: "minus", Negate: true},
+		})
+	})
+	t.Run("with +plus", func(t *testing.T) {
+		testParse(t, `with +plus`, []Token{
+			{Term: "with"},
+			{Term: "plus"},
+		})
+	})
+	t.Run("with-minus", func(t *testing.T) {
+		testParse(t, `with-minus`, []Token{
+			{Term: "with-minus"},
+		})
+	})
+	t.Run("with+plus", func(t *testing.T) {
+		testParse(t, `with+plus`, []Token{
+			{Term: "with+plus"},
+		})
+	})
+	t.Run("with minus before", func(t *testing.T) {
+		testParse(t, `with -"minus before"`, []Token{
+			{Term: "with"},
+			{Term: "minus before", Negate: true},
+		})
+	})
+	t.Run("with minus within", func(t *testing.T) {
+		testParse(t, `with "-minus within"`, []Token{
+			{Term: "with"},
+			{Term: "-minus within"},
+		})
+	})
+	t.Run("with plus before", func(t *testing.T) {
+		testParse(t, `with +"plus before"`, []Token{
+			{Term: "with"},
+			{Term: "plus before"},
+		})
+	})
+	t.Run("with plus within", func(t *testing.T) {
+		testParse(t, `with "+plus within"`, []Token{
+			{Term: "with"},
+			{Term: "+plus within"},
+		})
+	})
+	t.Run("+plus in other term", func(t *testing.T) {
+		testParse(t, `+plus "in other term"`, []Token{
+			{Term: "plus"},
+			{Term: "in other term"},
+		})
+	})
+	t.Run("with blank", func(t *testing.T) {
+		testParse(t, `with ''`, []Token{
+			{Term: "with"},
+		})
+	})
+	t.Run("with blank doubles", func(t *testing.T) {
+		testParse(t, `with ""`, []Token{
+			{Term: "with"},
+		})
+	})
+}

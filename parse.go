@@ -7,15 +7,15 @@ import (
 
 var tokenPattern = regexp.MustCompile(`[\-\+]?("+([^"]*)"+|[^\s]+)`)
 
-// ParseTokens parses search tokens from a plain string
-func ParseTokens(s string) []Token {
+// Parse parses search tokens from a plain string.
+func Parse(s string) []Token {
 	raw := tokenPattern.FindAllString(s, -1)
 	res := make([]Token, 0, len(raw))
 
 	for _, term := range raw {
 		sign := ""
 		if strings.HasPrefix(term, "-") || strings.HasPrefix(term, "+") {
-			sign, term = string(term[0]), term[1:len(term)]
+			sign, term = string(term[0]), term[1:]
 		}
 
 		term = strings.Trim(term, `"`)

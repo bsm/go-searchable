@@ -1,11 +1,8 @@
 # Go Searchable
 
-[![Build Status](https://travis-ci.org/bsm/go-searchable.png?branch=master)](https://travis-ci.org/bsm/go-searchable)
-[![GoDoc](https://godoc.org/github.com/bsm/go-searchable?status.png)](http://godoc.org/github.com/bsm/go-searchable)
-[![Go Report Card](https://goreportcard.com/badge/github.com/bsm/go-searchable)](https://goreportcard.com/report/github.com/bsm/go-searchable)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Go Reference](https://pkg.go.dev/badge/github.com/bsm/go-searchable.svg)](https://pkg.go.dev/github.com/bsm/go-searchable)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Simple search query builder on top of [squirrel](https://github.com/Masterminds/squirrel).
+Simple search query builder, compatible with [squirrel](https://github.com/Masterminds/squirrel).
 
 ## Usage
 
@@ -18,9 +15,11 @@ import (
 )
 
 var builder = searchable.Builder{
-  {SQL: "users.name"},
-  {SQL: "users.age", Type: searchable.TypeInt},
-  {SQL: "users.code", Exact: true},
+  Fields: []searchable.Field{
+    {SQL: "users.name"},
+    {SQL: "users.age", Type: searchable.FieldInt},
+    {SQL: "users.code", Match: searchable.MatchExact},
+  },
 }
 
 func main() {
@@ -33,7 +32,7 @@ func main() {
   sql, args, _ := users.ToSql()
 
   fmt.Println(sql)
-  // => SELECT * FROM users WHERE (((users.name IS NOT NULL AND users.name LIKE ?) OR (users.code IS NOT NULL AND users.code = ?)) AND ((users.name IS NOT NULL AND users.name LIKE ?) OR ...
+  // => SELECT * FROM users WHERE (((users.name IS NOT NULL AND users.name LIKE $1) OR (users.code IS NOT NULL AND users.code = $2)) AND ((users.name IS NOT NULL AND users.name LIKE $3) OR ...
   fmt.Println(args)
   // => [%alice% alice %45% 45 45 %admin% admin]
 }
